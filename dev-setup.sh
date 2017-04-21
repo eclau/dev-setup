@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Development environment boilerplate. Copyright (c) 2017, ericlau.me
 
 #------------------------------------------
 # 0. Setup terminal proxy
@@ -27,7 +28,7 @@ which -s brew
 if [[ $? != 0 ]] ; then
     /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 else
-    brew update && brew upgrade && brew doctor
+    brew update && brew upgrade
 fi
 
 #------------------------------------------
@@ -35,3 +36,18 @@ fi
 #------------------------------------------
 
 brew tap caskroom/cask
+
+#------------------------------------------
+# 2. Get casks
+#------------------------------------------
+
+casks=("caffeine" "dotnet" "mactex" "rstudio" "vagrant" "vagrant-manager" "virtualbox" "xquartz" "test")
+mycasks=($(brew cask list))
+
+echo ${casks[@]} ${mycasks[@]} | tr ' ' '\n' | sort | uniq -u
+
+#------------------------------------------
+# 1. Cleanup
+#------------------------------------------
+
+brew cask cleanup && brew cleanup && brew cask doctor && brew doctor
