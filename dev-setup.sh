@@ -19,6 +19,8 @@ httpsproxy=`scutil --proxy | awk '\
 END { if (enabled == "1") { print "http://" server ":" port; } }'`
 export http_proxy="${httpproxy}"
 export https_proxy="${httpsproxy}"
+git config --global http.proxy "${httpproxy}"
+git config --global https.proxy "${httpsproxy}"
 
 #------------------------------------------
 # 1. Install Homebrew
@@ -41,13 +43,16 @@ brew tap caskroom/cask
 # 2. Get casks
 #------------------------------------------
 
-casks=("caffeine" "dotnet" "mactex" "rstudio" "vagrant" "vagrant-manager" "virtualbox" "xquartz" "test")
+targets=("caffeine" "dotnet" "mactex" "postman" "rstudio" "vagrant" "vagrant-manager" "virtualbox" "xquartz")
 mycasks=($(brew cask list))
+diff=(`echo ${targets[@]} ${mycasks[@]} | tr ' ' '\n' | sort | uniq -u`)
 
-echo ${casks[@]} ${mycasks[@]} | tr ' ' '\n' | sort | uniq -u
+for cask in $diff ; do
+    brew cask install $cask
+done
 
 #------------------------------------------
 # 1. Cleanup
 #------------------------------------------
 
-brew cask cleanup && brew cleanup && brew cask doctor && brew doctor
+#brew cask cleanup && brew cleanup && brew cask doctor && brew doctor
