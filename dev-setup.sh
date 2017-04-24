@@ -17,8 +17,10 @@ httpsproxy=`scutil --proxy | awk '\
 /HTTPSProxy/ { server = $3; } \
 /HTTPSPort/ { port = $3; } \
 END { if (enabled == "1") { print "http://" server ":" port; } }'`
+# set terminal proxy
 export http_proxy="${httpproxy}"
 export https_proxy="${httpsproxy}"
+# set git proxy
 git config --global http.proxy "${httpproxy}"
 git config --global https.proxy "${httpsproxy}"
 
@@ -43,34 +45,74 @@ fi
 # 1. Get taps
 #------------------------------------------
 
-targets=("caskroom/cask" "caskroom/fonts" "homebrew/science")
+taps=()
+taps=("caskroom/cask" "caskroom/fonts" "homebrew/science")
+# current
 mytaps=($(brew tap))
-diff=(`echo ${targets[@]} ${mytaps[@]} | tr ' ' '\n' | sort | uniq -u`)
+diff=(`echo ${taps[@]} ${mytaps[@]} | tr ' ' '\n' | sort | uniq -u`)
 
 for tap in $diff ; do
+    echo "Tapping: " $tap
     brew tap $tap
 done
 
 #------------------------------------------
-# 2. Get casks
+# 2. Install packages
 #------------------------------------------
 
-targets=("caffeine" "dotnet" "mactex" "postman" "rstudio" "vagrant" "vagrant-manager" "visual-studio" "visual-studio-code" "virtualbox" "xquartz")
+packages=()
+# container
+packages+=("docker" "docker-compose" "docker-machine")
+# data science
+packages+=("boost" "libsvg" "libxml2" "gdal" "geos" "r")
+# db
+packages+=("mongodb" "mysql")
+# dev
+packages+=("kotlin" "node" "python" "python3")
+# iaas
+packages+=("awscli")
+# repo
+packages+=("git")
+# security
+packages+=("gnupg" "openssl")
+# misc
+packages+=("bash-completion" "brew-cask-completion" "curl" "p7zip")
+
+for package in $packages ; do
+    which -s $package
+    if [[ $? -ne 0 ]] ; then
+        brew install $package
+    fi
+done
+
+brew cleanup
+
+#------------------------------------------
+# 3. Get casks
+#------------------------------------------
+
+casks=()
+# data science
+casks+=("mactex" "rstudio" "xquartz")
+# dev
+casks+=("dotnet" "visual-studio" "visual-studio-code")
+# vm
+casks+=("vagrant" "vagrant-manager" "virtualbox")
+# misc
+casks+=("caffeine" "postman")
+# current
 mycasks=($(brew cask list))
-diff=(`echo ${targets[@]} ${mycasks[@]} | tr ' ' '\n' | sort | uniq -u`)
+diff=(`echo ${casks[@]} ${mycasks[@]} | tr ' ' '\n' | sort | uniq -u`)
 
 for cask in $diff ; do
+    echo "Installing: " $cask
     brew cask install $cask
 done
 
-#------------------------------------------
-# 2. Install formula
-#------------------------------------------
-
-
+brew cask cleanup
 
 #------------------------------------------
 # 4. Cleanup
 #------------------------------------------
 
-#brew cask cleanup && brew cleanup && brew cask doctor && brew doctor
+brew doctor && brew cask doctor
