@@ -23,7 +23,13 @@ git config --global http.proxy "${httpproxy}"
 git config --global https.proxy "${httpsproxy}"
 
 #------------------------------------------
-# 1. Install Homebrew
+# 1. Install Command Line Tools
+#------------------------------------------
+
+if type xcode-select >&- && xpath=$(xcode-select --print-path)
+
+#------------------------------------------
+# 2. Install Homebrew
 #------------------------------------------
 
 which -s brew
@@ -34,16 +40,22 @@ else
 fi
 
 #------------------------------------------
-# 1. Install Homebrew-Cask
+# 1. Get taps
 #------------------------------------------
 
-brew tap caskroom/cask
+targets=("caskroom/cask" "caskroom/fonts" "homebrew/science")
+mytaps=($(brew tap))
+diff=(`echo ${targets[@]} ${mytaps[@]} | tr ' ' '\n' | sort | uniq -u`)
+
+for tap in $diff ; do
+    brew tap $tap
+done
 
 #------------------------------------------
 # 2. Get casks
 #------------------------------------------
 
-targets=("caffeine" "dotnet" "mactex" "postman" "rstudio" "vagrant" "vagrant-manager" "virtualbox" "xquartz")
+targets=("caffeine" "dotnet" "mactex" "postman" "rstudio" "vagrant" "vagrant-manager" "visual-studio" "visual-studio-code" "virtualbox" "xquartz")
 mycasks=($(brew cask list))
 diff=(`echo ${targets[@]} ${mycasks[@]} | tr ' ' '\n' | sort | uniq -u`)
 
@@ -52,7 +64,13 @@ for cask in $diff ; do
 done
 
 #------------------------------------------
-# 1. Cleanup
+# 2. Install formula
+#------------------------------------------
+
+
+
+#------------------------------------------
+# 4. Cleanup
 #------------------------------------------
 
 #brew cask cleanup && brew cleanup && brew cask doctor && brew doctor
