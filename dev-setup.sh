@@ -28,7 +28,14 @@ git config --global https.proxy "${httpsproxy}"
 # 1. Install Command Line Tools
 #------------------------------------------
 
-if type xcode-select >&- && xpath=$(xcode-select --print-path)
+if type xcode-select >&- && \
+    xpath=$(xcode-select --print-path) && \
+    test -d "${xpath}" && \
+    test -x "${xpath}" ; then
+    echo "Detected xcode-select, nothing to do here..."
+else
+    xcode-select --install
+fi
 
 #------------------------------------------
 # 2. Install Homebrew
@@ -46,7 +53,7 @@ fi
 #------------------------------------------
 
 taps=()
-taps=("caskroom/cask" "caskroom/fonts" "homebrew/science")
+taps+=("caskroom/cask" "caskroom/fonts" "homebrew/science")
 # current
 mytaps=($(brew tap))
 diff=(`echo ${taps[@]} ${mytaps[@]} | tr ' ' '\n' | sort | uniq -u`)
@@ -95,7 +102,7 @@ casks=()
 # data science
 casks+=("mactex" "rstudio" "xquartz")
 # dev
-casks+=("dotnet" "visual-studio" "visual-studio-code")
+casks+=("dotnet" "visual-studio")
 # vm
 casks+=("vagrant" "vagrant-manager" "virtualbox")
 # misc
