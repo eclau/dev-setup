@@ -102,7 +102,7 @@ casks=()
 # data science
 casks+=("mactex" "rstudio" "xquartz")
 # dev
-casks+=("dotnet" "visual-studio")
+casks+=("dotnet")
 # vm
 casks+=("vagrant" "vagrant-manager" "virtualbox")
 # misc
